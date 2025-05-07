@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kachaka-mcp"
+version = "0.1.0"
+description = "MCP server for Kachaka robot"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "Apache-2.0"}
+authors = [
+    {name = "Kachaka MCP Team"}
+]
+dependencies = [
+    "mcp[cli]>=1.7.1",
+    "kachaka-api@git+https://github.com/pf-robotics/kachaka-api",
+    "grpcio",
+    "pydantic",
+    "pillow",
+    "numpy",
+    "loguru",
+    "protobuf==5.27.2"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "black",
+    "isort",
+    "mypy",
+    "ruff",
+]
+
+[project.scripts]
+kachaka-mcp = "kachaka_mcp.server:main"
