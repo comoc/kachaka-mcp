@@ -29,16 +29,16 @@ graph TD
 
 ### 3.1 Kachaka API クライアント
 - Kachaka APIとの通信を担当
-- KachakaApiClientを使用してロボットと通信
+- KachakaApiClientを使用してKachaakaと通信
 - 同期・非同期両方のインターフェースをサポート
 - ネットワーク接続の管理と再接続機能
 
 ### 3.2 リソース層
 Kachakaの状態情報をMCPリソースとして公開します：
 
-#### 3.2.1 ロボット情報リソース
-- `robot://status` - ロボットの現在の状態（位置、バッテリー、エラーなど）
-- `robot://version` - ロボットのバージョン情報
+#### 3.2.1 Kachaaka情報リソース
+- `robot://status` - Kachaakaの現在の状態（位置、バッテリー、エラーなど）
+- `robot://version` - Kachaakaのバージョン情報
 - `robot://serial` - シリアル番号
 - `robot://command` - 現在実行中のコマンド情報
 
@@ -66,7 +66,7 @@ Kachakaの操作機能をMCPツールとして公開します：
 - `return_home()` - ホームに戻る
 - `move_forward(distance_meter: float, speed: float)` - 指定した距離前進
 - `rotate_in_place(angle_radian: float)` - その場で回転
-- `set_robot_velocity(linear: float, angular: float)` - ロボットの速度を設定
+- `set_robot_velocity(linear: float, angular: float)` - Kachaakaの速度を設定
 
 #### 3.3.2 棚操作ツール
 - `move_shelf(shelf_name: str, location_name: str)` - 棚を指定した場所に移動
@@ -83,18 +83,18 @@ Kachakaの操作機能をMCPツールとして公開します：
 - `set_auto_homing_enabled(enable: bool)` - 自動ホーミングの有効/無効を設定
 - `set_manual_control_enabled(enable: bool)` - 手動制御の有効/無効を設定
 - `set_speaker_volume(volume: int)` - スピーカーの音量を設定
-- `restart_robot()` - ロボットを再起動
+- `restart_robot()` - Kachaakaを再起動
 
 #### 3.3.4 マップ操作ツール
 - `switch_map(map_id: str)` - マップを切り替える
 - `export_map(map_id: str, output_file_path: str)` - マップをエクスポート
 - `import_map(target_file_path: str)` - マップをインポート
-- `set_robot_pose(pose: dict)` - ロボットの位置を設定
+- `set_robot_pose(pose: dict)` - Kachaakaの位置を設定
 
 ### 3.4 プロンプト層
 AIモデルとの対話を効率化するためのプロンプトテンプレートを提供します：
 
-- `robot_control_prompt()` - ロボット制御のための基本プロンプト
+- `robot_control_prompt()` - Kachaaka制御のための基本プロンプト
 - `shelf_operation_prompt()` - 棚操作のための基本プロンプト
 - `navigation_prompt()` - ナビゲーションのための基本プロンプト
 - `error_handling_prompt()` - エラー処理のための基本プロンプト
@@ -250,7 +250,7 @@ def register_resources(mcp: FastMCP):
     
     @mcp.resource("robot://status")
     async def get_robot_status(ctx: Context) -> str:
-        """ロボットの現在の状態を取得"""
+        """Kachaakaの現在の状態を取得"""
         kachaka_client = ctx.request_context.lifespan_context.kachaka_client
         
         # 各種情報の取得
@@ -304,7 +304,7 @@ def register_tools(mcp: FastMCP):
     
     @mcp.tool()
     async def move_to_location(location_name: str, ctx: Context) -> str:
-        """指定した場所にロボットを移動させる"""
+        """指定した場所にKachaakaを移動させる"""
         kachaka_client = ctx.request_context.lifespan_context.kachaka_client
         
         # 進捗報告の設定
@@ -351,11 +351,11 @@ def register_prompts(mcp: FastMCP):
     
     @mcp.prompt()
     def robot_control_prompt() -> list[base.Message]:
-        """ロボット制御のための基本プロンプト"""
+        """Kachaaka制御のための基本プロンプト"""
         return [
             base.SystemMessage(
                 "あなたはKachakaを制御するアシスタントです。"
-                "以下のツールを使ってロボットを操作できます："
+                "以下のツールを使ってKachaakaを操作できます："
                 "- move_to_location: 指定した場所に移動"
                 "- return_home: ホームに戻る"
                 "- speak: テキストを音声で発話"
@@ -368,6 +368,9 @@ def register_prompts(mcp: FastMCP):
 ```
 
 ### 4.4 設定管理
+
+以降に出てくる`kachaka_host`や`KACHAKA_HOST`の値は「[PythonでカチャカAPIを利用する](https://github.com/pf-robotics/kachaka-api/blob/main/docs/PYTHON.md)」に記載されている`target=`に続く値と同じ値が入ります。  
+なお`26400`は[Kachaka APIサーバー (gRPC)](https://github.com/pf-robotics/kachaka-api/blob/main/docs/PLAYGROUND.md#playground%E3%81%AE%E4%BB%95%E6%A7%98)のポート番号です。
 
 ```python
 # utils/config.py
@@ -598,7 +601,7 @@ mcp install kachaka_mcp.server --name "Kachaka Robot" -v KACHAKA_HOST=192.168.1.
 
 ### 7.1 短期的な拡張計画
 - WebUIの追加（サーバー状態の監視、設定変更など）
-- 複数ロボットの管理機能
+- 複数Kachaakaの管理機能
 - カスタムコマンドのサポート
 
 ### 7.2 中長期的な拡張計画
