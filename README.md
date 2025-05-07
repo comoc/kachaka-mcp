@@ -466,7 +466,9 @@ uv sync --all
         "--directory",
         "<path to kachaka-mcp directory>",
         "run",
-        "python -m kachaka_mcp.server"
+        "python",
+        "-m",
+        "kachaka_mcp.server"
       ],
       "env": {
         "KACHAKA_HOST": "<kachaka robot host>"
