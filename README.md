@@ -2,14 +2,14 @@
 
 ## 1. 概要
 
-Kachaka MCPサーバー（kachaka-mcp）は、Kachakaロボットの機能をModel Context Protocol（MCP）を通じて様々なAIモデルに提供するサーバーです。このサーバーにより、Claude、GPT-4、ローカルLLMなどのAIモデルがKachakaロボットの状態を把握し、制御することができるようになります。
+Kachaka MCPサーバー（kachaka-mcp）は、[Kachaka](https://kachaka.life/home/)の機能をModel Context Protocol（MCP）を通じて様々なAIモデルに提供するサーバーです。このサーバーにより、Claude、GPT-4、ローカルLLMなどのAIモデルがKachakaの状態を把握し、制御することができるようになります。
 
 ## 2. アーキテクチャ
 
 ```mermaid
 graph TD
     A[AIモデル] <-->|MCP| B[kachaka-mcp サーバー]
-    B <-->|gRPC| C[Kachakaロボット]
+    B <-->|gRPC| C[Kachaka]
     
     subgraph "AIモデル"
     A1[Claude] --- A
@@ -145,13 +145,14 @@ version = "0.1.0"
 description = "MCP server for Kachaka robot"
 requires-python = ">=3.10"
 dependencies = [
-    "mcp[cli]",
-    "kachaka-api",
+    "mcp[cli]>=1.7.1",
+    "kachaka-api@git+https://github.com/pf-robotics/kachaka-api",
     "grpcio",
     "pydantic",
     "pillow",
     "numpy",
     "loguru",
+    "protobuf==5.27.2"
 ]
 
 [project.optional-dependencies]
@@ -353,14 +354,14 @@ def register_prompts(mcp: FastMCP):
         """ロボット制御のための基本プロンプト"""
         return [
             base.SystemMessage(
-                "あなたはKachakaロボットを制御するアシスタントです。"
+                "あなたはKachakaを制御するアシスタントです。"
                 "以下のツールを使ってロボットを操作できます："
                 "- move_to_location: 指定した場所に移動"
                 "- return_home: ホームに戻る"
                 "- speak: テキストを音声で発話"
                 "など"
             ),
-            base.UserMessage("Kachakaロボットを操作するのを手伝ってください。"),
+            base.UserMessage("Kachakaを操作するのを手伝ってください。"),
         ]
     
     # 他のプロンプトも同様に実装...
@@ -435,39 +436,52 @@ class KachakaAuthProvider(OAuthServerProvider):
 
 ### 5.1 uv syncを使ったインストール（推奨）
 
-[uv](https://github.com/astral-sh/uv)は高速なPythonパッケージインストーラーで、依存関係の解決が効率的に行われます。
+[uv](https://docs.astral.sh/uv/)は高速なPythonパッケージインストーラーで、依存関係の解決が効率的に行われます。
 
+uvのインストール(まだインストールしていない場合)。  
+kachaka-mcp のインストール。
 ```bash
-# uvのインストール（まだインストールしていない場合）
-curl -LsSf https://astral.sh/uv/install.sh | sh
+git clone https://github.com/pf-robotics/kachaka-mcp.git
+cd kachaka-mcp
 
-# Linux/macOSでのインストール
-uv venv .venv
-source .venv/bin/activate
+# インストール
 uv sync
 
-# Windowsでのインストール（CMD）
-uv venv .venv
-.venv\Scripts\activate.bat
-uv sync
-
-# Windowsでのインストール（PowerShell）
-uv venv .venv
-.\.venv\Scripts\Activate.ps1
-uv sync
-
-# 開発用依存関係も含めてインストール
+# または開発用依存関係も含めてインストール
 uv sync --all
 ```
 
-### 5.2 Linux/macOSでの実行
+### 5.2 Claude Desktopからの使用方法
+
+`claude_desktop_config.json` に以下の記述を追加してください：
+```json
+{
+  "mcpServers": {
+    "kachaka-mcp": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "<path to kachaka-mcp directory>",
+        "run",
+        "python -m kachaka_mcp.server"
+      ],
+      "env": {
+        "KACHAKA_HOST": "<kachaka robot host>"
+      }
+    }
+  }
+}
+```
+ここで、kachaka-mcpのディレクトリや`KACHAKA_HOST`の値は、お使いの環境に合わせて変更してください。
+
+### 5.3 Linux/macOSでの実行
 
 ```bash
 # インストール
 bash scripts/install.sh
 
 # 設定
-export KACHAKA_HOST="192.168.1.100:26400"  # Kachakaロボットのホスト
+export KACHAKA_HOST="192.168.1.100:26400"  # Kachakaのホスト
 
 # 実行
 bash scripts/run.sh
@@ -495,7 +509,7 @@ REM Claude Desktopにインストール
 scripts\run.bat --install --host 192.168.1.100:26400
 ```
 
-### 5.3 Windows（PowerShell）での実行
+### 5.4 Windows（PowerShell）での実行
 
 ```powershell
 # インストール
@@ -511,7 +525,7 @@ scripts\run.bat --install --host 192.168.1.100:26400
 .\scripts\Start-KachakaMCP.ps1 -Install -Host "192.168.1.100:26400"
 ```
 
-### 5.4 設定ファイルの使用
+### 5.5 設定ファイルの使用
 
 環境変数の代わりに設定ファイルを使用することもできます。設定ファイルは `~/.kachaka-mcp/config.json`（Linux/macOS）または `%USERPROFILE%\.kachaka-mcp\config.json`（Windows）に配置します。
 
@@ -538,18 +552,18 @@ set KACHAKA_MCP_CONFIG=C:\path\to\config.json
 $env:KACHAKA_MCP_CONFIG = "C:\path\to\config.json"
 ```
 
-### 5.5 直接実行（すべてのプラットフォーム）
+### 5.6 直接実行（すべてのプラットフォーム）
 
 ```bash
 # インストール
 pip install -e .
 
 # 設定
-export KACHAKA_HOST="192.168.1.100:26400"  # Kachakaロボットのホスト（Linux/macOS）
+export KACHAKA_HOST="192.168.1.100:26400"  # Kachakaのホスト（Linux/macOS）
 # または
-set KACHAKA_HOST=192.168.1.100:26400  # Kachakaロボットのホスト（Windows CMD）
+set KACHAKA_HOST=192.168.1.100:26400  # Kachakaのホスト（Windows CMD）
 # または
-$env:KACHAKA_HOST = "192.168.1.100:26400"  # Kachakaロボットのホスト（Windows PowerShell）
+$env:KACHAKA_HOST = "192.168.1.100:26400"  # Kachakaのホスト（Windows PowerShell）
 
 # 実行
 python -m kachaka_mcp.server
@@ -562,29 +576,6 @@ mcp dev kachaka_mcp.server
 
 # Claude Desktopにインストール
 mcp install kachaka_mcp.server --name "Kachaka Robot" -v KACHAKA_HOST=192.168.1.100:26400
-```
-
-### 5.6 Claude Desktopからの使用方法
-
-`claude_desktop_config.json` に以下の記述を追加してください：
-
-```json
-{
-  "mcpServers": {
-    "kachaka-mcp": {
-      "command": "uv",
-      "args": [
-        "--directory",
-        "<path to kachaka-mcp directory>",
-        "run",
-        "python -m kachaka_mcp.server"
-      ],
-      "env": {
-        "KACHAKA_HOST": "<kachaka robot host>"
-      }
-    }
-  }
-}
 ```
 
 ## 6. テスト計画
@@ -600,7 +591,7 @@ mcp install kachaka_mcp.server --name "Kachaka Robot" -v KACHAKA_HOST=192.168.1.
 - エラー処理のテスト
 
 ### 6.3 エンドツーエンドテスト
-- 実際のKachakaロボットとの連携テスト
+- 実際のKachakaとの連携テスト
 - 様々なAIモデルからのアクセステスト
 
 ## 7. 今後の拡張性
