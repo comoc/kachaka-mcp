@@ -1,5 +1,8 @@
 # Kachaka MCP サーバー
 
+> [!WARNING]
+> 現在このリポジトリにあるコードの状態は実験的なもののため、正常に動作しない可能性があります。
+
 ## 1. 概要
 
 Kachaka MCPサーバー（kachaka-mcp）は、[Kachaka](https://kachaka.life/home/)の機能をModel Context Protocol（MCP）を通じて様々なAIモデルに提供するサーバーです。このサーバーにより、Claude、GPT-4、ローカルLLMなどのAIモデルがKachakaの状態を把握し、制御することができるようになります。
