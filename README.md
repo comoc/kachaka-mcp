@@ -7,7 +7,132 @@
 
 Kachaka MCPサーバー（kachaka-mcp）は、[Kachaka](https://kachaka.life/home/)の機能をModel Context Protocol（MCP）を通じて様々なAIモデルに提供するサーバーです。このサーバーにより、Claude、GPT-4、ローカルLLMなどのAIモデルがKachakaの状態を把握し、制御することができるようになります。
 
-## 2. アーキテクチャ
+## 2. デプロイメント
+
+### 2.1 uv syncを使ったインストール
+
+[uv](https://docs.astral.sh/uv/)をインストールします。(まだインストールしていない場合)  
+kachaka-mcpを以下の手順でインストールします。
+```bash
+git clone https://github.com/pf-robotics/kachaka-mcp.git
+cd kachaka-mcp
+
+# インストール
+uv sync
+
+# または開発用依存関係も含めてインストール
+uv sync --all
+```
+
+### 2.2 Claude Desktopからの使用方法
+
+`claude_desktop_config.json` に以下の記述を追加してください：
+```json
+{
+  "mcpServers": {
+    "kachaka-mcp": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "<path to kachaka-mcp directory>",
+        "run",
+        "python",
+        "-m",
+        "kachaka_mcp.server"
+      ],
+      "env": {
+        "KACHAKA_HOST": "<kachaka host>"
+      }
+    }
+  }
+}
+```
+ここで、kachaka-mcpのディレクトリや`KACHAKA_HOST`の値は、お使いの環境に合わせて変更してください。  
+
+記述例:
+```json
+{
+  "mcpServers": {
+    "kachaka-mcp": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "C:\\kachaka-mcp",
+        "run",
+        "python",
+        "-m",
+        "kachaka_mcp.server"
+      ],
+      "env": {
+        "KACHAKA_HOST": "192.168.1.100:26400"
+      }
+    }
+  }
+}
+```
+
+## 2.3 MCP Inspectorを使ったデバッグ
+
+[MCP Inspector](https://github.com/modelcontextprotocol/inspector)を使ってデバッグする場合は以下のようにします。  
+
+```bash
+npx @modelcontextprotocol/inspector -e KACHAKA_HOST=192.168.1.100:26400 uv run python -m kachaka_mcp.server
+```
+
+### 2.4 直接実行（すべてのプラットフォーム）
+
+```bash
+# インストール
+pip install -e .
+
+# 設定
+export KACHAKA_HOST="192.168.1.100:26400"  # Kachakaのホスト（Linux/macOS）
+# または
+set KACHAKA_HOST=192.168.1.100:26400  # Kachakaのホスト（Windows CMD）
+# または
+$env:KACHAKA_HOST = "192.168.1.100:26400"  # Kachakaのホスト（Windows PowerShell）
+
+# 実行
+python -m kachaka_mcp.server
+
+# または
+mcp run kachaka_mcp.server
+
+# 開発モードで実行（MCP Inspector付き）
+mcp dev kachaka_mcp.server
+
+# Claude Desktopにインストール
+mcp install kachaka_mcp.server --name "Kachaka Robot" -v KACHAKA_HOST=192.168.1.100:26400
+```
+
+## 3. 設定ファイルの使用
+
+環境変数の代わりに設定ファイルを使用することもできます。設定ファイルは `~/.kachaka-mcp/config.json`（Linux/macOS）または `%USERPROFILE%\.kachaka-mcp\config.json`（Windows）に配置します。
+
+```json
+{
+  "kachaka_host": "192.168.1.100:26400",
+  "server_name": "My Kachaka Robot",
+  "log_level": "INFO",
+  "auth_enabled": false,
+  "api_keys": []
+}
+```
+
+設定ファイルの場所は環境変数 `KACHAKA_MCP_CONFIG` で変更できます：
+
+```bash
+# Linux/macOS
+export KACHAKA_MCP_CONFIG="/path/to/config.json"
+
+# Windows CMD
+set KACHAKA_MCP_CONFIG=C:\path\to\config.json
+
+# Windows PowerShell
+$env:KACHAKA_MCP_CONFIG = "C:\path\to\config.json"
+```
+
+## 4. アーキテクチャ
 
 ```mermaid
 graph TD
@@ -28,30 +153,30 @@ graph TD
     end
 ```
 
-## 3. 主要コンポーネント
+## 5. 主要コンポーネント
 
-### 3.1 Kachaka API クライアント
+### 5.1 Kachaka API クライアント
 - Kachaka APIとの通信を担当
 - KachakaApiClientを使用してKachaakaと通信
 - 同期・非同期両方のインターフェースをサポート
 - ネットワーク接続の管理と再接続機能
 
-### 3.2 リソース層
+### 5.2 リソース層
 Kachakaの状態情報をMCPリソースとして公開します：
 
-#### 3.2.1 Kachaaka情報リソース
+#### 5.2.1 Kachaaka情報リソース
 - `robot://status` - Kachaakaの現在の状態（位置、バッテリー、エラーなど）
 - `robot://version` - Kachaakaのバージョン情報
 - `robot://serial` - シリアル番号
 - `robot://command` - 現在実行中のコマンド情報
 
-#### 3.2.2 マップリソース
+#### 5.2.2 マップリソース
 - `map://current` - 現在のマップ情報（PNG形式）
 - `map://locations/{location_id?}` - 登録された場所の情報
 - `map://shelves/{shelf_id?}` - 棚の情報と位置
 - `map://list` - 利用可能なマップのリスト
 
-#### 3.2.3 センサーリソース
+#### 5.2.3 センサーリソース
 - `sensors://camera/front` - 前面カメラ画像
 - `sensors://camera/back` - 背面カメラ画像
 - `sensors://camera/tof` - ToFカメラ画像
@@ -60,10 +185,10 @@ Kachakaの状態情報をMCPリソースとして公開します：
 - `sensors://odometry` - オドメトリデータ
 - `sensors://object_detection` - 物体検出結果
 
-### 3.3 ツール層
+### 5.3 ツール層
 Kachakaの操作機能をMCPツールとして公開します：
 
-#### 3.3.1 移動ツール
+#### 5.3.1 移動ツール
 - `move_to_location(location_name: str)` - 指定した場所に移動
 - `move_to_pose(x: float, y: float, yaw: float)` - 指定した座標に移動
 - `return_home()` - ホームに戻る
@@ -71,14 +196,14 @@ Kachakaの操作機能をMCPツールとして公開します：
 - `rotate_in_place(angle_radian: float)` - その場で回転
 - `set_robot_velocity(linear: float, angular: float)` - Kachaakaの速度を設定
 
-#### 3.3.2 棚操作ツール
+#### 5.3.2 棚操作ツール
 - `move_shelf(shelf_name: str, location_name: str)` - 棚を指定した場所に移動
 - `return_shelf(shelf_name: str)` - 棚を元の場所に戻す
 - `dock_shelf()` - 棚にドッキング
 - `undock_shelf()` - 棚からアンドック
 - `dock_any_shelf_with_registration(location_name: str, dock_forward: bool)` - 任意の棚にドッキングして登録
 
-#### 3.3.3 システム操作ツール
+#### 5.3.3 システム操作ツール
 - `speak(text: str)` - テキストを音声で発話
 - `cancel_command()` - 実行中のコマンドをキャンセル
 - `proceed()` - 次のステップに進む
@@ -88,13 +213,13 @@ Kachakaの操作機能をMCPツールとして公開します：
 - `set_speaker_volume(volume: int)` - スピーカーの音量を設定
 - `restart_robot()` - Kachaakaを再起動
 
-#### 3.3.4 マップ操作ツール
+#### 5.3.4 マップ操作ツール
 - `switch_map(map_id: str)` - マップを切り替える
 - `export_map(map_id: str, output_file_path: str)` - マップをエクスポート
 - `import_map(target_file_path: str)` - マップをインポート
 - `set_robot_pose(pose: dict)` - Kachaakaの位置を設定
 
-### 3.4 プロンプト層
+### 5.4 プロンプト層
 AIモデルとの対話を効率化するためのプロンプトテンプレートを提供します：
 
 - `robot_control_prompt()` - Kachaaka制御のための基本プロンプト
@@ -102,14 +227,14 @@ AIモデルとの対話を効率化するためのプロンプトテンプレー
 - `navigation_prompt()` - ナビゲーションのための基本プロンプト
 - `error_handling_prompt()` - エラー処理のための基本プロンプト
 
-### 3.5 認証・セキュリティ層
+### 5.5 認証・セキュリティ層
 - APIキーベースの認証
 - アクセス制御と権限管理
 - 操作ログの記録
 
-## 4. 実装計画
+## 6. 実装計画
 
-### 4.1 プロジェクト構造
+### 6.1 プロジェクト構造
 
 ```
 kachaka-mcp/
@@ -139,7 +264,7 @@ kachaka-mcp/
     └── test_tools.py
 ```
 
-### 4.2 依存関係
+### 6.2 依存関係
 
 ```toml
 [project]
@@ -168,9 +293,9 @@ dev = [
 ]
 ```
 
-### 4.3 サーバー実装
+### 6.3 サーバー実装
 
-#### 4.3.1 メインサーバークラス
+#### 6.3.1 メインサーバークラス
 
 ```python
 # server.py
@@ -239,7 +364,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 4.3.2 リソース実装例
+#### 6.3.2 リソース実装例
 
 ```python
 # resources.py
@@ -295,7 +420,7 @@ def register_resources(mcp: FastMCP):
     # 他のリソースも同様に実装...
 ```
 
-#### 4.3.3 ツール実装例
+#### 6.3.3 ツール実装例
 
 ```python
 # tools.py
@@ -342,7 +467,7 @@ def register_tools(mcp: FastMCP):
     # 他のツールも同様に実装...
 ```
 
-#### 4.3.4 プロンプト実装例
+#### 6.3.4 プロンプト実装例
 
 ```python
 # prompts.py
@@ -370,7 +495,7 @@ def register_prompts(mcp: FastMCP):
     # 他のプロンプトも同様に実装...
 ```
 
-### 4.4 設定管理
+### 6.4 設定管理
 
 以降に出てくる`kachaka_host`や`KACHAKA_HOST`の値は「[PythonでカチャカAPIを利用する](https://github.com/pf-robotics/kachaka-api/blob/main/docs/PYTHON.md)」に記載されている`target=`に続く値と同じ値が入ります。  
 なお`26400`は[Kachaka APIサーバー (gRPC)](https://github.com/pf-robotics/kachaka-api/blob/main/docs/PLAYGROUND.md#playground%E3%81%AE%E4%BB%95%E6%A7%98)のポート番号です。
@@ -413,7 +538,7 @@ def load_config() -> KachakaMCPConfig:
     return config
 ```
 
-### 4.5 認証実装
+### 6.5 認証実装
 
 ```python
 # auth.py
@@ -438,217 +563,41 @@ class KachakaAuthProvider(OAuthServerProvider):
     # 他の認証メソッドも実装...
 ```
 
-## 5. デプロイメント
+## 7. テスト計画
 
-### 5.1 uv syncを使ったインストール（推奨）
-
-[uv](https://docs.astral.sh/uv/)をインストールします。(まだインストールしていない場合)  
-kachaka-mcpを以下の手順でインストールします。
-```bash
-git clone https://github.com/pf-robotics/kachaka-mcp.git
-cd kachaka-mcp
-
-# インストール
-uv sync
-
-# または開発用依存関係も含めてインストール
-uv sync --all
-```
-
-### 5.2 Claude Desktopからの使用方法
-
-`claude_desktop_config.json` に以下の記述を追加してください：
-```json
-{
-  "mcpServers": {
-    "kachaka-mcp": {
-      "command": "uv",
-      "args": [
-        "--directory",
-        "<path to kachaka-mcp directory>",
-        "run",
-        "python",
-        "-m",
-        "kachaka_mcp.server"
-      ],
-      "env": {
-        "KACHAKA_HOST": "<kachaka host>"
-      }
-    }
-  }
-}
-```
-ここで、kachaka-mcpのディレクトリや`KACHAKA_HOST`の値は、お使いの環境に合わせて変更してください。  
-
-記述例:
-```json
-{
-  "mcpServers": {
-    "kachaka-mcp": {
-      "command": "uv",
-      "args": [
-        "--directory",
-        "C:\\kachaka-mcp",
-        "run",
-        "python",
-        "-m",
-        "kachaka_mcp.server"
-      ],
-      "env": {
-        "KACHAKA_HOST": "192.168.1.100:26400"
-      }
-    }
-  }
-}
-```
-
-### 5.3 Linux/macOSでの実行
-
-```bash
-# インストール
-bash scripts/install.sh
-
-# 設定
-export KACHAKA_HOST="192.168.1.100:26400"  # Kachakaのホスト
-
-# 実行
-bash scripts/run.sh
-
-# 開発モードで実行（MCP Inspector付き）
-bash scripts/run.sh --dev
-
-# Claude Desktopにインストール
-bash scripts/run.sh --install
-```
-
-### 5.2 Windows（バッチファイル）での実行
-
-```batch
-REM インストール
-scripts\install.bat
-
-REM 実行
-scripts\run.bat --host 192.168.1.100:26400
-
-REM 開発モードで実行
-scripts\run.bat --dev --host 192.168.1.100:26400
-
-REM Claude Desktopにインストール
-scripts\run.bat --install --host 192.168.1.100:26400
-```
-
-### 5.4 Windows（PowerShell）での実行
-
-```powershell
-# インストール
-.\scripts\Install-KachakaMCP.ps1
-
-# 実行
-.\scripts\Start-KachakaMCP.ps1 -Host "192.168.1.100:26400"
-
-# 開発モードで実行
-.\scripts\Start-KachakaMCP.ps1 -Dev -Host "192.168.1.100:26400"
-
-# Claude Desktopにインストール
-.\scripts\Start-KachakaMCP.ps1 -Install -Host "192.168.1.100:26400"
-```
-
-### 5.5 設定ファイルの使用
-
-環境変数の代わりに設定ファイルを使用することもできます。設定ファイルは `~/.kachaka-mcp/config.json`（Linux/macOS）または `%USERPROFILE%\.kachaka-mcp\config.json`（Windows）に配置します。
-
-```json
-{
-  "kachaka_host": "192.168.1.100:26400",
-  "server_name": "My Kachaka Robot",
-  "log_level": "INFO",
-  "auth_enabled": false,
-  "api_keys": []
-}
-```
-
-設定ファイルの場所は環境変数 `KACHAKA_MCP_CONFIG` で変更できます：
-
-```bash
-# Linux/macOS
-export KACHAKA_MCP_CONFIG="/path/to/config.json"
-
-# Windows CMD
-set KACHAKA_MCP_CONFIG=C:\path\to\config.json
-
-# Windows PowerShell
-$env:KACHAKA_MCP_CONFIG = "C:\path\to\config.json"
-```
-
-### 5.6 直接実行（すべてのプラットフォーム）
-
-```bash
-# インストール
-pip install -e .
-
-# 設定
-export KACHAKA_HOST="192.168.1.100:26400"  # Kachakaのホスト（Linux/macOS）
-# または
-set KACHAKA_HOST=192.168.1.100:26400  # Kachakaのホスト（Windows CMD）
-# または
-$env:KACHAKA_HOST = "192.168.1.100:26400"  # Kachakaのホスト（Windows PowerShell）
-
-# 実行
-python -m kachaka_mcp.server
-
-# または
-mcp run kachaka_mcp.server
-
-# 開発モードで実行（MCP Inspector付き）
-mcp dev kachaka_mcp.server
-
-# Claude Desktopにインストール
-mcp install kachaka_mcp.server --name "Kachaka Robot" -v KACHAKA_HOST=192.168.1.100:26400
-```
-
-## 6. テスト計画
-
-### 6.1 単体テスト
+### 7.1 単体テスト
 - リソース機能のテスト
 - ツール機能のテスト
 - 認証機能のテスト
 
-### 6.2 統合テスト
+### 7.2 統合テスト
 - サーバー起動と終了のテスト
 - AIモデルとの連携テスト
 - エラー処理のテスト
 
-### 6.3 エンドツーエンドテスト
+### 7.3 エンドツーエンドテスト
 - 実際のKachakaとの連携テスト
 - 様々なAIモデルからのアクセステスト
 
-## 7. 今後の拡張性
+## 8. 今後の拡張性
 
-### 7.1 短期的な拡張計画
+### 8.1 短期的な拡張計画
 - WebUIの追加（サーバー状態の監視、設定変更など）
 - 複数Kachaakaの管理機能
 - カスタムコマンドのサポート
 
-### 7.2 中長期的な拡張計画
+### 8.2 中長期的な拡張計画
 - 高度なスケジューリング機能
 - ユーザー定義のワークフロー
 - 他のロボットプラットフォームとの連携
 
-## 8. セキュリティ考慮事項
+## 9. セキュリティ考慮事項
 
 - ネットワークセキュリティ（TLS/SSL対応）
 - アクセス制御と認証
 - 安全な操作の確保（危険な操作の制限）
 - ログ記録と監査
 
-## 9. デバッグ
-
-[MCP Inspector](https://github.com/modelcontextprotocol/inspector)を使ってデバッグする場合は以下のようにします。  
-
-```bash
-npx @modelcontextprotocol/inspector -e KACHAKA_HOST=192.168.1.100:26400 uv run python -m kachaka_mcp.server
-```
-
-### 10. ライセンス
+## 10. ライセンス
 
 [Apache License 2.0](LICENSE)
