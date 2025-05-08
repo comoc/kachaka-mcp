@@ -46,19 +46,16 @@ def register_robot_resources(mcp: FastMCP) -> None:
             from mcp.server.fastmcp import get_context
             ctx = get_context()
         except ImportError:
-            # get_contextが存在しない場合は、グローバル変数などから取得する必要があるかもしれない
-            # この場合は、サーバー作成時にコンテキストを保存しておく必要がある
-            from kachaka_mcp.server import current_context
-            ctx = current_context
+            # 古いバージョンのSDKを使用している場合は、ctxを直接取得
+            ctx = mcp.get_context()
+            
         """ロボットの現在の状態を取得"""
         logger.debug("Getting robot status")
-        kachaka_client = ctx.request_context.lifespan_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
-            # 各種情報の取得
-            from kachaka_mcp.server import current_context
-            kachaka_client = current_context.kachaka_client
-            
+            # 各種情報の取得 
             pose = await kachaka_client.get_robot_pose()
             battery_info = await kachaka_client.get_battery_info()
             command_state, command = await kachaka_client.get_command_state()
@@ -90,8 +87,8 @@ def register_robot_resources(mcp: FastMCP) -> None:
     async def get_robot_version() -> str:
         """ロボットのバージョン情報を取得"""
         logger.debug("Getting robot version")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             version = await kachaka_client.get_robot_version()
@@ -104,8 +101,8 @@ def register_robot_resources(mcp: FastMCP) -> None:
     async def get_robot_serial() -> str:
         """ロボットのシリアル番号を取得"""
         logger.debug("Getting robot serial number")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             serial = await kachaka_client.get_robot_serial_number()
@@ -118,8 +115,8 @@ def register_robot_resources(mcp: FastMCP) -> None:
     async def get_robot_command() -> str:
         """現在実行中のコマンド情報を取得"""
         logger.debug("Getting robot command")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             command_state, command = await kachaka_client.get_command_state()
@@ -148,8 +145,8 @@ def register_map_resources(mcp: FastMCP) -> None:
     async def get_current_map() -> Image:
         """現在のマップ画像を取得"""
         logger.debug("Getting current map")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # マップの取得
@@ -169,8 +166,8 @@ def register_map_resources(mcp: FastMCP) -> None:
     async def get_locations(location_id: str = None) -> str:
         """登録された場所の情報を取得"""
         logger.debug(f"Getting locations, location_id={location_id}")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # 場所の取得
@@ -216,8 +213,8 @@ def register_map_resources(mcp: FastMCP) -> None:
     async def get_shelves(shelf_id: str = None) -> str:
         """棚の情報と位置を取得"""
         logger.debug(f"Getting shelves, shelf_id={shelf_id}")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # 棚の取得
@@ -263,8 +260,8 @@ def register_map_resources(mcp: FastMCP) -> None:
     async def get_map_list() -> str:
         """利用可能なマップのリストを取得"""
         logger.debug("Getting map list")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # マップリストの取得
@@ -296,8 +293,8 @@ def register_sensor_resources(mcp: FastMCP) -> None:
     async def get_front_camera() -> Image:
         """前面カメラ画像を取得"""
         logger.debug("Getting front camera image")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # カメラ画像の取得
@@ -317,8 +314,8 @@ def register_sensor_resources(mcp: FastMCP) -> None:
     async def get_back_camera() -> Image:
         """背面カメラ画像を取得"""
         logger.debug("Getting back camera image")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # カメラ画像の取得
@@ -338,8 +335,8 @@ def register_sensor_resources(mcp: FastMCP) -> None:
     async def get_tof_camera() -> Image:
         """ToFカメラ画像を取得"""
         logger.debug("Getting ToF camera image")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # カメラ画像の取得
@@ -359,8 +356,8 @@ def register_sensor_resources(mcp: FastMCP) -> None:
     async def get_laser_scan() -> str:
         """レーザースキャンデータを取得"""
         logger.debug("Getting laser scan data")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # レーザースキャンの取得
@@ -388,8 +385,8 @@ def register_sensor_resources(mcp: FastMCP) -> None:
     async def get_imu_data() -> str:
         """IMUデータを取得"""
         logger.debug("Getting IMU data")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # IMUデータの取得
@@ -424,8 +421,8 @@ def register_sensor_resources(mcp: FastMCP) -> None:
     async def get_odometry_data() -> str:
         """オドメトリデータを取得"""
         logger.debug("Getting odometry data")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # オドメトリデータの取得
@@ -469,8 +466,8 @@ def register_sensor_resources(mcp: FastMCP) -> None:
     async def get_object_detection() -> str:
         """物体検出結果を取得"""
         logger.debug("Getting object detection results")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # 物体検出結果の取得

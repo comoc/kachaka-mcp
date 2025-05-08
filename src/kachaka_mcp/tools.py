@@ -45,9 +45,16 @@ def register_movement_tools(mcp: FastMCP) -> None:
         Returns:
             実行結果のメッセージ
         """
+        try:
+            from mcp.server.fastmcp import get_context
+            ctx = get_context()
+        except ImportError:
+            # 古いバージョンのSDKを使用している場合は、ctxを直接取得
+            ctx = mcp.get_context()
+        
         logger.info(f"Moving to location: {location_name}")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # 進捗報告の設定
@@ -80,9 +87,16 @@ def register_movement_tools(mcp: FastMCP) -> None:
         Returns:
             実行結果のメッセージ
         """
+        try:
+            from mcp.server.fastmcp import get_context
+            ctx = get_context()
+        except ImportError:
+            # 古いバージョンのSDKを使用している場合は、ctxを直接取得
+            ctx = mcp.get_context()
+        
         logger.info(f"Moving to pose: x={x}, y={y}, yaw={yaw}")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # 進捗報告の設定
@@ -110,9 +124,16 @@ def register_movement_tools(mcp: FastMCP) -> None:
         Returns:
             実行結果のメッセージ
         """
+        try:
+            from mcp.server.fastmcp import get_context
+            ctx = get_context()
+        except ImportError:
+            # 古いバージョンのSDKを使用している場合は、ctxを直接取得
+            ctx = mcp.get_context()
+        
         logger.info("Returning home")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # 進捗報告の設定
@@ -143,9 +164,16 @@ def register_movement_tools(mcp: FastMCP) -> None:
         Returns:
             実行結果のメッセージ
         """
+        try:
+            from mcp.server.fastmcp import get_context
+            ctx = get_context()
+        except ImportError:
+            # 古いバージョンのSDKを使用している場合は、ctxを直接取得
+            ctx = mcp.get_context()
+        
         logger.info(f"Moving forward: distance={distance_meter}m, speed={speed}m/s")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # 進捗報告の設定
@@ -177,9 +205,16 @@ def register_movement_tools(mcp: FastMCP) -> None:
         Returns:
             実行結果のメッセージ
         """
+        try:
+            from mcp.server.fastmcp import get_context
+            ctx = get_context()
+        except ImportError:
+            # 古いバージョンのSDKを使用している場合は、ctxを直接取得
+            ctx = mcp.get_context()
+        
         logger.info(f"Rotating in place: angle={angle_radian}rad")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # 進捗報告の設定
@@ -212,8 +247,8 @@ def register_movement_tools(mcp: FastMCP) -> None:
             実行結果のメッセージ
         """
         logger.info(f"Setting robot velocity: linear={linear}m/s, angular={angular}rad/s")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # 速度設定コマンドの実行
@@ -246,9 +281,16 @@ def register_shelf_tools(mcp: FastMCP) -> None:
         Returns:
             実行結果のメッセージ
         """
+        try:
+            from mcp.server.fastmcp import get_context
+            ctx = get_context()
+        except ImportError:
+            # 古いバージョンのSDKを使用している場合は、ctxを直接取得
+            ctx = mcp.get_context()
+        
         logger.info(f"Moving shelf {shelf_name} to location {location_name}")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # 進捗報告の設定
@@ -280,9 +322,16 @@ def register_shelf_tools(mcp: FastMCP) -> None:
         Returns:
             実行結果のメッセージ
         """
+        try:
+            from mcp.server.fastmcp import get_context
+            ctx = get_context()
+        except ImportError:
+            # 古いバージョンのSDKを使用している場合は、ctxを直接取得
+            ctx = mcp.get_context()
+        
         logger.info(f"Returning shelf {shelf_name if shelf_name else '(current)'}")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # 進捗報告の設定
@@ -310,9 +359,16 @@ def register_shelf_tools(mcp: FastMCP) -> None:
         Returns:
             実行結果のメッセージ
         """
+        try:
+            from mcp.server.fastmcp import get_context
+            ctx = get_context()
+        except ImportError:
+            # 古いバージョンのSDKを使用している場合は、ctxを直接取得
+            ctx = mcp.get_context()
+        
         logger.info("Docking shelf")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # 進捗報告の設定
@@ -339,9 +395,16 @@ def register_shelf_tools(mcp: FastMCP) -> None:
         Returns:
             実行結果のメッセージ
         """
+        try:
+            from mcp.server.fastmcp import get_context
+            ctx = get_context()
+        except ImportError:
+            # 古いバージョンのSDKを使用している場合は、ctxを直接取得
+            ctx = mcp.get_context()
+        
         logger.info("Undocking shelf")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # 進捗報告の設定
@@ -372,9 +435,16 @@ def register_shelf_tools(mcp: FastMCP) -> None:
         Returns:
             実行結果のメッセージ
         """
+        try:
+            from mcp.server.fastmcp import get_context
+            ctx = get_context()
+        except ImportError:
+            # 古いバージョンのSDKを使用している場合は、ctxを直接取得
+            ctx = mcp.get_context()
+        
         logger.info(f"Docking any shelf at location {location_name}, dock_forward={dock_forward}")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # 進捗報告の設定
@@ -414,8 +484,21 @@ def register_system_tools(mcp: FastMCP) -> None:
             実行結果のメッセージ
         """
         logger.info(f"Speaking: {text}")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
+       
+        # from .utils.config import load_config
+        # config = load_config()
+        # if config.kachaka_host is None:
+        #     logger.error("Kachaka host is not set")
+        #     return "Error: Kachaka host is not set"
+        # else:
+        #     logger.info(f"Kachaka host: {config.kachaka_host}")
+        #     return f"Kachaka host: {config.kachaka_host}"
+        
+        # if not kachaka_client:
+        #     logger.error("Kachaka client is not available")
+        #     return "Error: Kachaka client is not available"
         
         try:
             # 発話コマンドの実行
@@ -441,8 +524,8 @@ def register_system_tools(mcp: FastMCP) -> None:
             実行結果のメッセージ
         """
         logger.info("Canceling command")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # コマンドのキャンセル
@@ -465,8 +548,8 @@ def register_system_tools(mcp: FastMCP) -> None:
             実行結果のメッセージ
         """
         logger.info("Proceeding to next step")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # 次のステップに進む
@@ -492,8 +575,8 @@ def register_system_tools(mcp: FastMCP) -> None:
             実行結果のメッセージ
         """
         logger.info(f"Locking for {duration_sec} seconds")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # ロックコマンドの実行
@@ -522,8 +605,8 @@ def register_system_tools(mcp: FastMCP) -> None:
             実行結果のメッセージ
         """
         logger.info(f"Setting auto homing enabled: {enable}")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # 自動ホーミングの設定
@@ -549,8 +632,8 @@ def register_system_tools(mcp: FastMCP) -> None:
             実行結果のメッセージ
         """
         logger.info(f"Setting manual control enabled: {enable}")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # 手動制御の設定
@@ -576,8 +659,8 @@ def register_system_tools(mcp: FastMCP) -> None:
             実行結果のメッセージ
         """
         logger.info(f"Setting speaker volume: {volume}")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # 音量の設定
@@ -600,8 +683,8 @@ def register_system_tools(mcp: FastMCP) -> None:
             実行結果のメッセージ
         """
         logger.info("Restarting robot")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # 再起動コマンドの実行
@@ -634,8 +717,8 @@ def register_map_tools(mcp: FastMCP) -> None:
             実行結果のメッセージ
         """
         logger.info(f"Switching to map: {map_id}")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # マップの切り替え
@@ -662,8 +745,8 @@ def register_map_tools(mcp: FastMCP) -> None:
             実行結果のメッセージ
         """
         logger.info(f"Exporting map {map_id} to {output_file_path}")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # マップのエクスポート
@@ -689,8 +772,8 @@ def register_map_tools(mcp: FastMCP) -> None:
             実行結果のメッセージ
         """
         logger.info(f"Importing map from {target_file_path}")
-        from kachaka_mcp.server import current_context
-        kachaka_client = current_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # マップのインポート
@@ -719,7 +802,8 @@ def register_map_tools(mcp: FastMCP) -> None:
             実行結果のメッセージ
         """
         logger.info(f"Setting robot pose: x={x}, y={y}, yaw={yaw}")
-        kachaka_client = ctx.request_context.lifespan_context.kachaka_client
+        from kachaka_mcp.server import get_context
+        kachaka_client = get_context().kachaka_client 
         
         try:
             # ロボットの位置を設定

@@ -26,27 +26,36 @@ class KachakaMCPContext:
     def __init__(self, kachaka_client: KachakaApiClient):
         self.kachaka_client = kachaka_client
 
+def get_context() -> KachakaMCPContext:
+    """グローバル変数からコンテキストを取得し存在していなければ作成して返す"""
+    global current_context
+    
+    if current_context is None:
+        # 設定の読み込み
+        config = load_config()
+    
+        # Kachaka APIクライアントの初期化
+        kachaka_client = KachakaApiClient(target=config.kachaka_host)
+    
+        # コンテキストの作成と提供
+        context = KachakaMCPContext(kachaka_client)
+        current_context = context  # グローバル変数に保存
+         
+    return current_context
+
+def _reset_context() -> None:
+    """グローバル変数のコンテキストをリセット"""
+    global current_context
+    current_context = None
 
 @asynccontextmanager
 async def kachaka_lifespan(server: FastMCP) -> AsyncIterator[KachakaMCPContext]:
     """Kachaka MCP サーバーのライフスパン管理"""
-    global current_context
-    
-    # 設定の読み込み
-    config = load_config()
-    
-    # Kachaka APIクライアントの初期化
-    kachaka_client = KachakaApiClient(target=config.kachaka_host)
-    
     try:
         # コンテキストの作成と提供
-        context = KachakaMCPContext(kachaka_client)
-        current_context = context  # グローバル変数に保存
-        yield context
+        yield get_context()
     finally:
-        # クリーンアップ処理
-        current_context = None
-
+        _reset_context()
 
 def create_server(server_name: str = None) -> FastMCP:
     """Kachaka MCP サーバーを作成"""
@@ -81,6 +90,12 @@ def create_server(server_name: str = None) -> FastMCP:
             lifespan=kachaka_lifespan,
         )
     
+    # コンテキストの作成と提供(もう一度)
+    global current_context
+    kachaka_client = KachakaApiClient(target=config.kachaka_host)
+    context = KachakaMCPContext(kachaka_client)
+    current_context = context  # グローバル変数に保存
+    
     # リソース、ツール、プロンプトの登録
     register_resources(mcp)
     register_tools(mcp)
@@ -88,12 +103,10 @@ def create_server(server_name: str = None) -> FastMCP:
     
     return mcp
 
-
 def main():
     """メイン関数"""
     server = create_server()
     server.run()
-
 
 if __name__ == "__main__":
     main()
