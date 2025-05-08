@@ -381,7 +381,7 @@ from pathlib import Path
 
 class KachakaMCPConfig(BaseModel):
     """Kachaka MCP サーバーの設定"""
-    kachaka_host: str = "100.94.1.1:26400"  # デフォルトのKachakaホスト
+    kachaka_host: str = "192.168.1.100:26400"  # デフォルトのKachakaホスト
     server_name: str = "Kachaka Robot"
     log_level: str = "INFO"
     auth_enabled: bool = False
@@ -439,10 +439,8 @@ class KachakaAuthProvider(OAuthServerProvider):
 
 ### 5.1 uv syncを使ったインストール（推奨）
 
-[uv](https://docs.astral.sh/uv/)は高速なPythonパッケージインストーラーで、依存関係の解決が効率的に行われます。
-
-uvのインストール(まだインストールしていない場合)。  
-kachaka-mcp のインストール。
+[uv](https://docs.astral.sh/uv/)をインストールします。(まだインストールしていない場合)  
+kachaka-mcpを以下の手順でインストールします。
 ```bash
 git clone https://github.com/pf-robotics/kachaka-mcp.git
 cd kachaka-mcp
@@ -617,3 +615,11 @@ mcp install kachaka_mcp.server --name "Kachaka Robot" -v KACHAKA_HOST=192.168.1.
 - アクセス制御と認証
 - 安全な操作の確保（危険な操作の制限）
 - ログ記録と監査
+
+## 9. デバッグ
+
+[MCP Inspector](https://github.com/modelcontextprotocol/inspector)を使う場合は以下のようにします。  
+
+```bash
+npx @modelcontextprotocol/inspector -e KACHAKA_HOST="192.168.1.100:26400" uv run python -m kachaka_mcp.server
+```
