@@ -1,4 +1,4 @@
-# Kachaka MCP サーバー設計書
+# Kachaka MCP サーバー
 
 ## 1. 概要
 
