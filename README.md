@@ -472,13 +472,35 @@ uv sync --all
         "kachaka_mcp.server"
       ],
       "env": {
-        "KACHAKA_HOST": "<kachaka robot host>"
+        "KACHAKA_HOST": "<kachaka host>"
       }
     }
   }
 }
 ```
-ここで、kachaka-mcpのディレクトリや`KACHAKA_HOST`の値は、お使いの環境に合わせて変更してください。
+ここで、kachaka-mcpのディレクトリや`KACHAKA_HOST`の値は、お使いの環境に合わせて変更してください。  
+
+記述例:
+```json
+{
+  "mcpServers": {
+    "kachaka-mcp": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "C:\\kachaka-mcp",
+        "run",
+        "python",
+        "-m",
+        "kachaka_mcp.server"
+      ],
+      "env": {
+        "KACHAKA_HOST": "192.168.1.100:26400"
+      }
+    }
+  }
+}
+```
 
 ### 5.3 Linux/macOSでの実行
 
