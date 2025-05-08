@@ -621,5 +621,5 @@ mcp install kachaka_mcp.server --name "Kachaka Robot" -v KACHAKA_HOST=192.168.1.
 [MCP Inspector](https://github.com/modelcontextprotocol/inspector)を使う場合は以下のようにします。  
 
 ```bash
-npx @modelcontextprotocol/inspector -e KACHAKA_HOST="192.168.1.100:26400" uv run python -m kachaka_mcp.server
+npx @modelcontextprotocol/inspector -e KACHAKA_HOST=192.168.1.100:26400 uv run python -m kachaka_mcp.server
 ```
